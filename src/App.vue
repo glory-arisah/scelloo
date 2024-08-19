@@ -1,9 +1,9 @@
 <script setup>
-	import { useAdminStore } from '@store'
-
-	const adminStore = useAdminStore()
+	import Admin from '@views/admin/index.vue'
 </script>
 
-<template></template>
+<template>
+	<Admin />
+</template>
 
 <style scoped></style>
