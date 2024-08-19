@@ -59,6 +59,7 @@
 				margin: 0 20px 0 0;
 				border-radius: 6px;
 				cursor: pointer;
+				transition: border 300ms;
 
 				&.selected {
 					box-shadow: 0px 0px 3px 0px #6d5bd0;
@@ -66,11 +67,17 @@
 				}
 
 				&:hover {
-					// INSERT HOVER STYLES
+					border: 1px solid #6d5bd0;
+					transition: border 300ms;
 				}
 
 				.filter_text {
 					margin-left: 10px;
+					font-family: Inter;
+					font-size: 16px;
+					font-weight: 400;
+					line-height: 19.36px;
+					text-align: left;
 				}
 			}
 
@@ -84,6 +91,15 @@
 					border: none;
 					background: #f4f2ff;
 					text-overflow: ellipsis;
+					transition: border 200ms;
+
+					&:hover,
+					&:focus,
+					&:focus-visible {
+						border: 1px solid #6d5bd0;
+						transition: border 200ms;
+						cursor: pointer;
+					}
 				}
 
 				.search_icon {

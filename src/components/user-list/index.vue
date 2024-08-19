@@ -25,6 +25,11 @@
 
 <script setup>
 	import MoreIcon from '@assets/icons/more.svg'
+	import { useAdminStore } from '@store'
+	import { storeToRefs } from 'pinia'
+
+	const adminStore = useAdminStore()
+	const { users } = storeToRefs(adminStore)
 </script>
 
 <style lang="scss" scoped>

@@ -28,11 +28,21 @@
 
 <script setup>
 	import { useAdminStore } from '@store'
-	import { computed } from 'vue'
+	import { ref, computed, onMounted } from 'vue'
 	import FilterUsers from '@components/filter-users/index.vue'
 	import UserList from '@components/user-list/index.vue'
 
 	const adminStore = useAdminStore()
+	const searchString = ref('')
+	const selectedUser = ref(null)
+	const filterType = ref({
+		sortBy: null,
+		userCategory: null,
+	})
+
+	onMounted(() => {
+		adminStore.fetchUsers(80)
+	})
 	const totalPayableAmount = computed(() => 900)
 </script>
 
