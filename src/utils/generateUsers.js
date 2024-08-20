@@ -1,11 +1,10 @@
 import { faker } from '@faker-js/faker'
-import dayjs from 'dayjs'
+import { dayjsWrapper, today } from './date'
 
 const paymentStatuses = ['paid', 'unpaid', 'overdue']
 const userActiveStatuses = ['active', 'inactive']
 
 function generateUser() {
-	const today = dayjs()
 	const firstName = faker.person.firstName()
 	const lastName = faker.person.lastName()
 	const middleName = faker.person.middleName()
@@ -23,6 +22,10 @@ function generateUser() {
 		paymentStatuses[Math.floor(Math.random() * paymentStatuses.length)]
 	const userStatus =
 		userActiveStatuses[Math.floor(Math.random() * userActiveStatuses.length)]
+	const dueDate = faker.date.between({
+		from: today.add(3, 'day').toISOString(),
+		to: today.add(1, 'week').toISOString(),
+	})
 	const userActivities = Array.from(
 		{
 			length: Math.ceil(Math.random() * 4),
@@ -39,10 +42,11 @@ function generateUser() {
 		lastName,
 		email,
 		amount,
-		lastLogin: dayjs(lastLogin).format('DD/MMM/YYYY'),
+		lastLogin: dayjsWrapper(lastLogin),
 		paymentStatus,
 		userStatus,
 		userActivities,
+		dueDate,
 		...(shouldAddMiddleName && { middleName }),
 	}
 }

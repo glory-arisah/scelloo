@@ -31,14 +31,15 @@
 	import { ref, computed, onMounted } from 'vue'
 	import FilterUsers from '@components/filter-users/index.vue'
 	import UserList from '@components/user-list/index.vue'
+	import {
+		USER_ACTIVE_CATEGORIES,
+		USER_PAID_CATEGORIES,
+		SORT_FILTERS,
+	} from './constants'
 
 	const adminStore = useAdminStore()
 	const searchString = ref('')
 	const selectedUser = ref(null)
-	const filterType = ref({
-		sortBy: null,
-		userCategory: null,
-	})
 
 	onMounted(() => {
 		adminStore.fetchUsers(80)
@@ -47,13 +48,6 @@
 </script>
 
 <style lang="scss" scoped>
-	:root {
-		--clr-unpaid: '#CE8500';
-		--clr-overdue: '#D30000';
-		--clr-paid: '007F00';
-		--clr-bg-primary: '#ffffff';
-	}
-
 	.main_container {
 		padding: 50px 2rem 0;
 		@media screen and (min-width: 744px) {

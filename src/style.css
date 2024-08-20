@@ -6,6 +6,20 @@
 	box-sizing: border-box;
 }
 
+:root {
+	--clr-text-unpaid: #ce8500;
+	--clr-bg-unpaid: #ffeccc;
+	--svg-unpaid: url(assets/icons/payment-status/unpaid.svg);
+	--clr-text-overdue: #d30000;
+	--clr-bg-overdue: #ffe0e0;
+	--svg-overdue: url(assets/icons/payment-status/overdue.svg);
+	--clr-text-paid: #007f00;
+	--clr-bg-paid: #cdffcd;
+	--svg-paid: url(assets/icons/payment-status/paid.svg);
+	--clr-bg-primary: #ffffff;
+	--clr-font-primary: #25213b;
+}
+
 body {
 	background: #f2f0f9;
 }
