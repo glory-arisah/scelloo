@@ -22,6 +22,7 @@
 		<section class="user_table_container">
 			<FilterUsers />
 			<UserList />
+			<Pagination />
 		</section>
 	</div>
 </template>
@@ -31,6 +32,7 @@
 	import { ref, computed, onMounted } from 'vue'
 	import FilterUsers from '@components/filter-users/index.vue'
 	import UserList from '@components/user-list/index.vue'
+	import Pagination from '@components/pagination/index.vue'
 	import {
 		USER_ACTIVE_CATEGORIES,
 		USER_PAID_CATEGORIES,
@@ -42,7 +44,7 @@
 	const selectedUser = ref(null)
 
 	onMounted(() => {
-		adminStore.fetchUsers(80)
+		adminStore.fetchUsers(95)
 	})
 	const totalPayableAmount = computed(() => 900)
 </script>

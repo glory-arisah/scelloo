@@ -32,8 +32,8 @@ function generateUser() {
 		},
 		() => ({
 			date: today.format('DD/MMM/YYYY'),
-			activity: faker.lorem.lines(2),
-			detail: faker.lorem.lines({ min: 2, max: 3 }),
+			activity: faker.lorem.lines(1),
+			detail: faker.lorem.lines(1),
 		})
 	)
 

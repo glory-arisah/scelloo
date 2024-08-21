@@ -1,6 +1,10 @@
 <template>
 	<div class="table_container">
-		<table>
+		<table
+			class="parent_table"
+			cellpadding="0"
+			cellspacing="0"
+		>
 			<thead class="table_header">
 				<tr class="table_header_row row">
 					<td class="cell">
@@ -33,12 +37,12 @@
 					</td>
 				</tr>
 			</thead>
-			<tbody>
-				<tr
-					class="row"
-					v-for="user in paginatedUsers"
-					:key="user.fullName"
-				>
+			<!-- eslint-disable -->
+			<template
+				v-for="user in paginationUsersWithIcons"
+				:key="user.id"
+			>
+				<tr :class="['row', user.id === userInView?.id ? 'highlight_row' : '']">
 					<td class="cell">
 						<div class="checkbox_wrapper cell">
 							<input
@@ -48,7 +52,12 @@
 							/>
 							<img
 								:src="ChevronDown"
-								class="chevron_down"
+								:class="[
+									'chevron_down',
+									user.id === userInViewId ? 'open' : '',
+								]"
+								role="button"
+								@click="toggleUserActivitiesVisibility(user.id)"
 							/>
 						</div>
 					</td>
@@ -87,9 +96,9 @@
 							<div
 								class="user_paid_indicator"
 								:style="`
-									background: var(--clr-bg-${user.paymentStatus});
-									color: var(--clr-text-${user.paymentStatus})
-								`"
+								background: var(--clr-bg-${user.paymentStatus});
+								color: var(--clr-text-${user.paymentStatus})
+							`"
 							>
 								<img :src="user.paymentIndicator" />
 								<span class="payment_status">
@@ -128,7 +137,68 @@
 						</div>
 					</td>
 				</tr>
-			</tbody>
+
+				<tr
+					v-if="userInView && userInViewId === user.id"
+					class="accordion_content"
+					:style="{
+						height: `${contentHeight}px`,
+					}"
+				>
+					<td
+						colspan="8"
+						ref="contentRef"
+					>
+						<table
+							class="activity_table"
+							cellpadding="0"
+							cellspacing="20"
+						>
+							<thead>
+								<tr class="activity_header_row">
+									<th class="activity_cell">DATE</th>
+									<th class="activity_cell">USER ACTIVITY</th>
+									<th class="activity_cell">
+										<div class="user_activity_details">
+											<span> DETAIL </span>
+											<img
+												:src="DetailsIcon"
+												alt="details"
+											/>
+										</div>
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr
+									v-if="
+										!userInView.userActivities ||
+										!userInView.userActivities.length
+									"
+									class="no_records row"
+								></tr>
+
+								<template v-else>
+									<tr
+										v-for="(userActivity, index) in userInView.userActivities"
+										:key="index"
+										class="row"
+									>
+										<td class="activity_cell date">{{ userActivity.date }}</td>
+										<td class="activity_cell activity">
+											{{ userActivity.activity }}
+										</td>
+										<td class="activity_cell detail">
+											{{ userActivity.detail }}
+										</td>
+									</tr>
+								</template>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+			</template>
+			<!-- eslint-enable -->
 		</table>
 	</div>
 </template>
@@ -141,28 +211,50 @@
 	import PaidIndicator from '@assets/icons/payment-status/paid.svg'
 	import UnpaidIndicator from '@assets/icons/payment-status/unpaid.svg'
 	import OverdueIndicator from '@assets/icons/payment-status/overdue.svg'
+	import DetailsIcon from '@assets/icons/details.svg'
 
 	import { useAdminStore } from '@store'
 	import { storeToRefs } from 'pinia'
-	import { computed } from 'vue'
+	import { ref, computed, nextTick, watch } from 'vue'
 	import { USER_PAID_CATEGORIES } from '@views/admin/constants'
 	import { capitalize } from '@utils/stringFormatter'
 
 	const adminStore = useAdminStore()
-	const { pageNumber, usersPerPage, sortedUsers } = storeToRefs(adminStore)
+	const { pageNumber, usersPerPage, sortedUsers, paginatedUsers } =
+		storeToRefs(adminStore)
 
-	// PAGINATION
-	const paginatedUsers = computed(() => {
-		const startId = usersPerPage.value * (pageNumber.value - 1)
-		const endId = startId + usersPerPage.value
-		return sortedUsers.value.slice(startId, endId).map((user) => {
+	const userInViewId = ref(0)
+	const contentHeight = ref(0)
+	const contentRef = ref(null)
+
+	const userInView = computed(() => {
+		if (!userInViewId.value) return null
+		return paginationUsersWithIcons.value.find(
+			(user) => user.id === userInViewId.value
+		)
+	})
+
+	watch(
+		() => ({
+			pageNumber: pageNumber.value,
+			usersPerPage: usersPerPage.value,
+		}),
+		() => {
+			userInViewId.value = 0
+		}
+	)
+
+	const paginationUsersWithIcons = computed(() =>
+		paginatedUsers.value.map((user, index) => {
 			const hasMiddleName = !!user?.middleName
 
 			const fullName = `${user.firstName} ${
 				hasMiddleName ? user.middleName : ''
 			} ${user.lastName}`
+
 			return {
 				...user,
+				id: index + 1,
 				fullName,
 				paymentIndicator:
 					user.paymentStatus === USER_PAID_CATEGORIES.PAID
@@ -172,7 +264,21 @@
 						: OverdueIndicator,
 			}
 		})
-	})
+	)
+
+	function toggleUserActivitiesVisibility(userId) {
+		if (userInViewId.value === userId) {
+			userInViewId.value = 0
+			return
+		}
+
+		userInViewId.value = userId
+		nextTick(() => {
+			if (contentRef.value) {
+				contentHeight.value = contentRef.value.scrollHeight
+			}
+		})
+	}
 </script>
 
 <style lang="scss" scoped>
@@ -180,24 +286,34 @@
 		font-family: Arial, sans-serif;
 		width: 100%;
 
-		table {
+		.user_activity_details {
+			display: flex;
+			align-items: center;
+			gap: 5px;
+		}
+
+		.parent_table {
 			width: 100%;
 			border-collapse: collapse;
+
+			thead {
+				font-family: Inter;
+				font-size: 12px;
+				font-weight: 600;
+				line-height: 14.52px;
+				letter-spacing: 0.05em;
+				text-align: left;
+				color: #6e6893;
+				text-transform: uppercase;
+				background: #f4f2ff;
+			}
 		}
 
-		thead {
-			font-family: Inter;
-			font-size: 12px;
-			font-weight: 600;
-			line-height: 14.52px;
-			letter-spacing: 0.05em;
-			text-align: left;
-			color: #6e6893;
-			text-transform: uppercase;
-			background: #f4f2ff;
+		tr {
+			border: 1px solid #d9d5ec;
 		}
 
-		td:first-of-type {
+		.cell:first-of-type {
 			padding-left: 20px;
 
 			div {
@@ -205,12 +321,78 @@
 			}
 		}
 
-		td:last-of-type {
+		.cell:last-of-type {
 			padding-right: 20px;
+		}
+
+		.accordion_content {
+			overflow: hidden;
+			transition: height 0.5s ease-out;
+			width: 100%;
+		}
+
+		.activity_table {
+			width: 100%;
+			border-collapse: collapse;
+			border-spacing: 20px 0;
+
+			tr {
+				background: #f2f0f9;
+			}
+
+			.activity_header_row {
+				height: 46px;
+			}
+
+			.activity_cell {
+				&:first-of-type {
+					padding-left: 50px;
+					@media screen and (min-width: 744px) {
+						padding-left: 95px;
+					}
+
+					div {
+						width: fit-content;
+					}
+				}
+
+				&:nth-child(2) {
+					padding-left: 20px;
+				}
+
+				&:last-of-type {
+					padding-right: 95px;
+				}
+
+				&.date {
+					font-family: Inter;
+					font-size: 14px;
+					font-weight: 400;
+					line-height: 16.94px;
+					letter-spacing: 0.05em;
+					text-align: left;
+					color: #6e6893;
+					text-transform: uppercase;
+				}
+
+				&.activity,
+				&.detail {
+					font-family: Inter;
+					font-size: 14px;
+					font-weight: 400;
+					line-height: 16.94px;
+					text-align: left;
+					color: #25213b;
+				}
+			}
 		}
 
 		.row {
 			height: 60px;
+		}
+
+		.highlight_row {
+			background: #f4f2ff;
 		}
 
 		.user_checkbox {
@@ -220,8 +402,10 @@
 
 		.chevron_down {
 			margin-left: 20px;
+			transition: transform 400ms;
+
 			&.open {
-				transform: rotate(360);
+				transform: rotate(180deg);
 				transition: transform 200ms;
 			}
 

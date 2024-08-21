@@ -12,7 +12,6 @@ function filterByActiveUser(users, userActiveStatus) {
 }
 
 function sortUsers(users, sortValue) {
-	console.log({ users })
 	switch (sortValue) {
 		case SORT_FILTERS.DEFAULT:
 			return users
@@ -66,6 +65,11 @@ export const useAdminStore = defineStore('admin', {
 		},
 		sortedUsers(state) {
 			return sortUsers(this.filteredUsers, state.filterParams.sortBy)
+		},
+		paginatedUsers() {
+			const startId = this.usersPerPage * (this.pageNumber - 1)
+			const endId = startId + this.usersPerPage
+			return this.sortedUsers.slice(startId, endId)
 		},
 	},
 })
