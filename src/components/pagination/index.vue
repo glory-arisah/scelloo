@@ -42,8 +42,8 @@
 </template>
 
 <script setup>
-	import PrevPageIcon from '@assets/icons/pagination/prev-page.svg'
-	import NextPageIcon from '@assets/icons/pagination/next-page.svg'
+	import PrevPageIcon from '/public/assets/icons/pagination/prev-page.svg'
+	import NextPageIcon from '/public/assets/icons/pagination/next-page.svg'
 	import CustomDropDown from './custom-drop-down/index.vue'
 	import { useAdminStore } from '@store'
 	import { storeToRefs } from 'pinia'

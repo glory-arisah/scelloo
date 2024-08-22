@@ -39,16 +39,12 @@
 <script setup>
 	import { useAdminStore } from '@store'
 	import { ref, computed, onMounted } from 'vue'
+	import { storeToRefs } from 'pinia'
+	import { USER_PAID_CATEGORIES } from './constants'
 	import FilterUsers from '@components/filter-users/index.vue'
 	import UserList from '@components/user-list/index.vue'
 	import Pagination from '@components/pagination/index.vue'
-	import { storeToRefs } from 'pinia'
 	import { capitalize } from '@utils/stringFormatter'
-	import {
-		USER_ACTIVE_CATEGORIES,
-		USER_PAID_CATEGORIES,
-		SORT_FILTERS,
-	} from './constants'
 
 	const adminStore = useAdminStore()
 	const { filterParams } = storeToRefs(adminStore)
@@ -61,6 +57,7 @@
 	)
 
 	function handleUserPaymentFilter(paymentStatus) {
+		adminStore.updateSelectedUsersId([])
 		if (paymentStatus === paymentStatusFilter.value) return
 
 		adminStore.updateFilterParams({

@@ -1,4 +1,4 @@
-@import '/src/assets/styles/variables.scss';
+@import 'src/assets/styles/variables.scss';
 
 *,
 *::before,
@@ -11,19 +11,14 @@
 :root {
 	--clr-font-unpaid: #{$clr-font-unpaid};
 	--clr-bg-unpaid: #{$clr-bg-unpaid};
-	--svg-unpaid: #{$svg-unpaid};
 	--clr-font-overdue: #{$clr-font-overdue};
 	--clr-bg-overdue: #{$clr-bg-overdue};
-	--svg-overdue: #{$svg-overdue};
 	--clr-font-paid: #{$clr-font-paid};
 	--clr-bg-paid: #{$clr-bg-paid};
-	--svg-paid: #{$svg-paid};
 	--clr-bg-primary: #{$clr-bg-primary};
 	--clr-font-primary: #{$clr-font-primary};
-	--svg-inactive: #{$svg-inactive};
 	--clr-font-inactive: #{$clr-font-inactive};
 	--clr-bg-inactive: #{$clr-bg-inactive};
-	--svg-active: #{$svg-active};
 	--clr-font-active: #{$clr-font-active};
 	--clr-bg-active: #{$clr-bg-active};
 }

@@ -19,7 +19,7 @@ export function filterUsersByPaymentAndActiveStatus(
 
 		const doesUserMatchActiveStatus =
 			activeStatus === USER_ACTIVE_CATEGORIES.ALL ||
-			user.userStatus === activeStatus
+			user.activeStatus === activeStatus
 
 		const searchTermNameMatch =
 			!searchTerm || user.fullName.toLowerCase().includes(searchTerm)

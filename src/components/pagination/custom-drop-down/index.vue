@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-	import ArrowDownIcon from '@assets/icons/pagination/arrow-down.svg'
+	import ArrowDownIcon from '/public/assets/icons/pagination/arrow-down.svg'
 	import { ref, computed } from 'vue'
 
 	const { options, modelValue, isDropdownOpen } = defineProps({

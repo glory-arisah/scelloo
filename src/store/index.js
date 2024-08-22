@@ -43,6 +43,8 @@ export const useAdminStore = defineStore('admin', {
 						? USER_PAID_CATEGORIES.PAID
 						: user.paymentStatus,
 			}))
+
+			this.updateSelectedUsersId([])
 		},
 		updateFilterParams(payload) {
 			this.filterParams = payload

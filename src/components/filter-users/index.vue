@@ -108,10 +108,10 @@
 </template>
 
 <script setup>
-	import FilterIcon from '@assets/icons/filter.svg'
-	import SearchIcon from '@assets/icons/search.svg'
-	import SelectedFilter from '@assets/icons/filter/selected-filter.svg'
-	import UnselectedFilter from '@assets/icons/filter/unselected-filter.svg'
+	import FilterIcon from '/public/assets/icons/filter.svg'
+	import SearchIcon from '/public/assets/icons/search.svg'
+	import SelectedFilter from '/public/assets/icons/filter/selected-filter.svg'
+	import UnselectedFilter from '/public/assets/icons/filter/unselected-filter.svg'
 	import { SORT_FILTERS, USER_ACTIVE_CATEGORIES } from '@views/admin/constants'
 	import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 	import { useAdminStore } from '@store'
@@ -186,10 +186,14 @@
 	function handleFilterDialogVisibility(event) {
 		if (!isFilterDialogOpen.value) return
 
-		const isClickOnFilterButton = filterButton.value.contains(event.target)
-		const isClickInsideFilterDialog = filterDialog.value.contains(event.target)
+		const isClickOnFilterDropdownTrigger = filterButton.value.contains(
+			event.target
+		)
+		const isClickInsideFilterDropdown = filterDialog.value.contains(
+			event.target
+		)
 
-		if (isClickOnFilterButton || isClickInsideFilterDialog) return
+		if (isClickOnFilterDropdownTrigger || isClickInsideFilterDropdown) return
 
 		isFilterDialogOpen.value = false
 	}

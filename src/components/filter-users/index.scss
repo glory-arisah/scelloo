@@ -85,6 +85,7 @@
 			display: flex;
 			position: relative;
 			width: 100%;
+			max-width: 392px;
 			border-radius: 6px;
 
 			&:hover {
@@ -98,7 +99,6 @@
 				background: #f4f2ff;
 				text-overflow: ellipsis;
 				transition: border 200ms;
-				max-width: 392px;
 				width: 100%;
 				outline: 0px;
 				border: 0px;

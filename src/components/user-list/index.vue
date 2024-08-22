@@ -1,3 +1,4 @@
+f
 <template>
 	<div class="table_container">
 		<table
@@ -99,16 +100,16 @@
 							<div
 								class="user_status_wrapper"
 								:style="`
-									--clr-bg: var(--clr-bg-${user.userStatus});
-									--clr-font: var(--clr-font-${user.userStatus})
+									--clr-bg: var(--clr-bg-${user.activeStatus});
+									--clr-font: var(--clr-font-${user.activeStatus})
 								`"
 							>
 								<img
-									:src="svgUrl(user.userStatus)"
-									:alt="user.userStatus"
+									:src="user.activeIndicator"
+									:alt="user.activeStatus"
 								/>
-								<span :class="user.userStatus">
-									{{ capitalize(user.userStatus) }}
+								<span :class="user.activeStatus">
+									{{ capitalize(user.activeStatus) }}
 								</span>
 							</div>
 							<p class="user_last_login">
@@ -129,7 +130,7 @@
 									--clr-font: var(--clr-font-${user.paymentStatus})
 							`"
 							>
-								<img :src="svgUrl(user.paymentStatus)" />
+								<img :src="user.paymentIndicator" />
 								<span class="payment_status">
 									{{ capitalize(user.paymentStatus) }}
 								</span>
@@ -199,7 +200,7 @@
 					}"
 				>
 					<td
-						colspan="8"
+						colspan="7"
 						ref="contentRef"
 					>
 						<table
@@ -264,19 +265,24 @@
 </template>
 
 <script setup>
-	import MoreIcon from '@assets/icons/more.svg'
-	import ChevronDown from '@assets/icons/chevron-down.svg'
-	import PaidIndicator from '@assets/icons/payment-status/paid.svg'
-	import UnpaidIndicator from '@assets/icons/payment-status/unpaid.svg'
-	import OverdueIndicator from '@assets/icons/payment-status/overdue.svg'
-	import CheckMark from '@assets/icons/payment-status/checkmark.svg'
-	import DetailsIcon from '@assets/icons/details.svg'
-	import CloseIcon from '@assets/icons/close.svg'
+	import MoreIcon from '/public/assets/icons/more.svg'
+	import ChevronDown from '/public/assets/icons/chevron-down.svg'
+	import PaidIndicator from '/public/assets/icons/payment-status/paid.svg'
+	import UnpaidIndicator from '/public/assets/icons/payment-status/unpaid.svg'
+	import OverdueIndicator from '/public/assets/icons/payment-status/overdue.svg'
+	import ActiveIndicator from '/public/assets/icons/active-status/active.svg'
+	import InactiveIndicator from '/public/assets/icons/active-status/inactive.svg'
+	import CheckMark from '/public/assets/icons/payment-status/checkmark.svg'
+	import DetailsIcon from '/public/assets/icons/details.svg'
+	import CloseIcon from '/public/assets/icons/close.svg'
 
 	import { useAdminStore } from '@store'
 	import { storeToRefs } from 'pinia'
 	import { ref, computed, nextTick, watch, onUnmounted } from 'vue'
-	import { USER_PAID_CATEGORIES } from '@views/admin/constants'
+	import {
+		USER_PAID_CATEGORIES,
+		USER_ACTIVE_CATEGORIES,
+	} from '@views/admin/constants'
 	import { capitalize } from '@utils/stringFormatter'
 
 	const adminStore = useAdminStore()
@@ -334,6 +340,10 @@
 					: user.paymentStatus === USER_PAID_CATEGORIES.UNPAID
 					? UnpaidIndicator
 					: OverdueIndicator,
+			activeIndicator:
+				user.activeStatus === USER_ACTIVE_CATEGORIES.ACTIVE
+					? ActiveIndicator
+					: InactiveIndicator,
 		}))
 	)
 
@@ -372,17 +382,6 @@
 		} else {
 			adminStore.updateSelectedUsersId([])
 		}
-	}
-
-	// Function to get the value of a CSS variable
-	function getCssVariableValue(variable) {
-		return getComputedStyle(document.documentElement)
-			.getPropertyValue(variable)
-			.trim()
-	}
-
-	function svgUrl(paymentStatus) {
-		return getCssVariableValue(`--svg-${paymentStatus}`)
 	}
 
 	onUnmounted(() => {

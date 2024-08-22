@@ -7,7 +7,6 @@ export default defineConfig({
 	plugins: [vue()],
 	resolve: {
 		alias: {
-			'@assets': path.resolve(__dirname, 'src/assets'),
 			'@components': path.resolve(__dirname, 'src/components'),
 			'@store': path.resolve(__dirname, 'src/store'),
 			'@views': path.resolve(__dirname, 'src/views'),
@@ -17,7 +16,18 @@ export default defineConfig({
 	css: {
 		preprocessorOptions: {
 			scss: {
-				additionalData: `@import "@assets/styles/mixins.scss";`,
+				additionalData: `@import "src/assets/styles/mixins.scss";`,
+			},
+		},
+	},
+	build: {
+		// Specify the directory where Vite will output the build files
+		assetsDir: '@/assets', // This can be adjusted if needed
+		rollupOptions: {
+			// Configuration options for Rollup (which Vite uses internally)
+			output: {
+				// Ensure that assets are included in the build output
+				assetFileNames: '@/assets/[name][extname]',
 			},
 		},
 	},

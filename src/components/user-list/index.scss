@@ -66,7 +66,7 @@
 			}
 
 			&:last-of-type {
-				padding-right: 95px;
+				padding: 0px 95px 0px 30px;
 			}
 
 			&.date {
@@ -214,6 +214,7 @@
 		.more_dialog_wrapper {
 			box-shadow: 0px 5px 15px 0px #00000033;
 			position: absolute;
+			z-index: 1000;
 			top: 0px;
 			left: calc(100% - 20px);
 			background-color: #fff;
@@ -289,8 +290,8 @@
 }
 
 .highlight_row_border {
-	border-left: 5px solid #6d5bd0 !important;
-	transition: border-left 300ms;
+	box-shadow: inset 5px 0 0 0 #6d5bd0;
+	transition: box-shadow 250ms;
 }
 
 .checkbox_wrapper {
@@ -323,7 +324,7 @@
 	border: 2px solid #8a70ff;
 	border-radius: 4px;
 	transition: all 0.3s ease;
-	svg {
+	img {
 		display: none;
 		stroke: white;
 	}
@@ -333,6 +334,6 @@
 	background-color: #8a70ff;
 }
 
-.custom-checkbox input:checked ~ .checkmark svg {
+.custom-checkbox input:checked ~ .checkmark img {
 	display: block;
 }

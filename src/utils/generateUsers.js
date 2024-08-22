@@ -24,7 +24,7 @@ function generateUser() {
 	})
 	const paymentStatus =
 		paymentStatuses[Math.floor(Math.random() * paymentStatuses.length)]
-	const userStatus =
+	const activeStatus =
 		userActiveStatuses[Math.floor(Math.random() * userActiveStatuses.length)]
 	const dueDate = faker.date.between({
 		from: today.clone().add(3, 'day').toISOString(),
@@ -50,7 +50,7 @@ function generateUser() {
 		amount,
 		lastLogin: dayjsWrapper(lastLogin),
 		paymentStatus,
-		userStatus,
+		activeStatus,
 		userActivities,
 		dueDate: dayjsWrapper(dueDate),
 		...(shouldAddMiddleName && { middleName }),
