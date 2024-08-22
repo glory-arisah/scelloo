@@ -290,8 +290,10 @@
 }
 
 .highlight_row_border {
-	box-shadow: inset 5px 0 0 0 #6d5bd0;
-	transition: box-shadow 250ms;
+	td:first-child {
+		box-shadow: inset 5px 0 0 0 #6d5bd0;
+		transition: box-shadow 250ms;
+	}
 }
 
 .checkbox_wrapper {

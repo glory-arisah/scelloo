@@ -22,8 +22,7 @@
 				<section
 					ref="filterDialog"
 					:style="`--top-offset: ${filterButton?.offsetHeight}px`"
-					class="filter_dialog_container"
-					v-show="isFilterDialogOpen"
+					:class="`filter_dialog_container ${isFilterDialogOpen ? 'open' : ''}`"
 				>
 					<div class="sort_by_container">
 						<p class="filter_title">SORT BY:</p>
@@ -166,7 +165,7 @@
 
 			filterDialogCloseDelay.value = setTimeout(() => {
 				isFilterDialogOpen.value = false
-			}, 500)
+			}, 300)
 		}
 	}
 
@@ -179,7 +178,7 @@
 
 			filterDialogCloseDelay.value = setTimeout(() => {
 				isFilterDialogOpen.value = false
-			}, 500)
+			}, 300)
 		}
 	}
 
