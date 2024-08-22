@@ -1,7 +1,12 @@
 <template>
 	<div class="filter_and_pay_container">
 		<div class="filter_and_search_wrapper">
-			<div class="filter_and_dialog_wrapper">
+			<div
+				:class="`
+				filter_and_dialog_wrapper
+				${isFilterDialogOpen ? 'open' : ''}
+			`"
+			>
 				<div
 					ref="filterButton"
 					class="filter_container"

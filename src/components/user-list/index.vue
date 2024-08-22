@@ -32,16 +32,18 @@
 					<td class="cell">
 						<div class="align_right">amount</div>
 					</td>
-					<td class="cell"></td>
 					<td
 						class="cell"
 						colspan="2"
 					>
-						<div>
-							<img
-								:src="MoreIcon"
-								alt="more"
-							/>
+						<div class="view_more_cell">
+							<div></div>
+							<div class="more_icon_wrapper">
+								<img
+									:src="MoreIcon"
+									alt="more"
+								/>
+							</div>
 						</div>
 					</td>
 				</tr>
@@ -153,14 +155,38 @@
 						</div>
 					</td>
 					<td class="cell">
-						<div class="view_more">View more</div>
-					</td>
-					<td class="cell">
 						<div class="more_details_wrapper">
-							<img
-								:src="MoreIcon"
-								alt="more"
-							/>
+							<div class="view_more_cell">
+								<div class="view_more">View more</div>
+								<div
+									class="more_icon_wrapper"
+									@click="handleSelectedOption(user.id)"
+								>
+									<img
+										:src="MoreIcon"
+										alt="more"
+									/>
+								</div>
+							</div>
+
+							<div
+								class="more_dialog_wrapper"
+								v-if="selectedOption === user.id"
+								@click="closeOptionsDialog"
+							>
+								<button class="close_icon">
+									<img
+										:src="CloseIcon"
+										alt="close options"
+									/>
+								</button>
+								<ul class="options_list">
+									<li class="item edit">Edit</li>
+									<li class="item view_profile">View Profile</li>
+									<li class="item activate_user">Activate User</li>
+								</ul>
+								<p class="delete"><span>Delete</span></p>
+							</div>
 						</div>
 					</td>
 				</tr>
@@ -245,6 +271,7 @@
 	import OverdueIndicator from '@assets/icons/payment-status/overdue.svg'
 	import CheckMark from '@assets/icons/payment-status/checkmark.svg'
 	import DetailsIcon from '@assets/icons/details.svg'
+	import CloseIcon from '@assets/icons/close.svg'
 
 	import { useAdminStore } from '@store'
 	import { storeToRefs } from 'pinia'
@@ -265,6 +292,7 @@
 	const contentHeight = ref(0)
 	const contentRef = ref(null)
 	const tickBoxChecked = ref([])
+	const selectedOption = ref('')
 
 	const userInView = computed(() => {
 		if (!userInViewId.value) return null
@@ -308,6 +336,19 @@
 					: OverdueIndicator,
 		}))
 	)
+
+	function closeOptionsDialog() {
+		selectedOption.value = ''
+	}
+
+	function handleSelectedOption(userId) {
+		if (selectedOption.value === userId) {
+			selectedOption.value = ''
+			return
+		}
+
+		selectedOption.value = userId
+	}
 
 	function toggleUserActivitiesVisibility(userId) {
 		if (userInViewId.value === userId) {
