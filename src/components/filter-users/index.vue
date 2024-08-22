@@ -93,6 +93,8 @@
 			<button
 				type="button"
 				class="pay_dues_btn"
+				:disabled="selectedUsersIds.length === 0"
+				@click="handleUserPayment"
 			>
 				pay dues
 			</button>
@@ -119,7 +121,7 @@
 	const filterDialogCloseDelay = ref(null)
 	const filterButton = ref(null)
 	const filterDialog = ref(null)
-	const { filterParams } = storeToRefs(adminStore)
+	const { filterParams, selectedUsersIds } = storeToRefs(adminStore)
 
 	const selectedSortFilter = computed(() => filterParams.value.sortBy)
 	const selectedActiveUserFilter = computed(
@@ -134,12 +136,20 @@
 		})
 	}, 300)
 
-	watch(localSearchString, (newValue, oldValue) => {
-		if (newValue?.trim() !== oldValue?.trim()) debouncedUpdateSearch(newValue)
-	})
+	const stopSearchStringWatcher = watch(
+		localSearchString,
+		(newValue, oldValue) => {
+			if (newValue?.trim() !== oldValue?.trim()) debouncedUpdateSearch(newValue)
+		}
+	)
 
 	function toggleFilterDialog() {
 		isFilterDialogOpen.value = !isFilterDialogOpen.value
+	}
+
+	function handleUserPayment() {
+		if (selectedUsersIds.value.length > 0)
+			adminStore.updateUserPaymentStatus(selectedUsersIds.value)
 	}
 
 	function handleUpdateSortFilter(sortFilter) {
@@ -186,145 +196,10 @@
 	onUnmounted(() => {
 		document.removeEventListener('click', handleFilterDialogVisibility)
 		filterDialogCloseDelay.value = null
+		stopSearchStringWatcher()
 	})
 </script>
 
 <style lang="scss" scoped>
-	.filter_and_pay_container {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 15px 20px;
-
-		.filter_and_search_wrapper {
-			display: flex;
-			position: relative;
-
-			.filter_container {
-				display: flex;
-				padding: 10px;
-				border: 1px solid #c6c2de;
-				background: #fff;
-				align-items: center;
-				margin: 0 20px 0 0;
-				border-radius: 6px;
-				cursor: pointer;
-				transition: border 300ms, transform 500ms;
-
-				&.selected {
-					box-shadow: 0px 0px 3px 0px #6d5bd0;
-					border: 1px solid #6d5bd0;
-				}
-
-				&:hover {
-					border: 1px solid #6d5bd0;
-					transition: border 300ms;
-				}
-
-				&:active {
-					transform: scale(0.96);
-					transition: transform 200ms;
-				}
-
-				.filter_text {
-					margin-left: 10px;
-					font-family: Inter;
-					font-size: 16px;
-					font-weight: 400;
-					line-height: 19.36px;
-					text-align: left;
-				}
-			}
-
-			.filter_dialog_container {
-				position: absolute;
-				top: calc(var(--top-offset, 42px) + 5px);
-				left: 0px;
-				background: #fff;
-				z-index: 1000;
-				padding: 24px 18px;
-				box-shadow: 0px 5px 8px 0px #00000033;
-				border: 1px solid #c6c2de;
-				border-radius: 6px;
-
-				.sort_by_container {
-					border-bottom: 1px solid #f2f0f9;
-					margin-bottom: 5px;
-				}
-
-				.filter_title {
-					font-family: Inter;
-					font-size: 12px;
-					font-weight: 400;
-					line-height: 14.52px;
-					letter-spacing: 0.05em;
-					text-align: left;
-					color: #6e6893;
-					padding: 5px 10px;
-				}
-
-				.filter_item {
-					display: flex;
-					justify-content: space-between;
-					gap: 90px;
-					padding: 10px 10px;
-					border-radius: 4px;
-					cursor: pointer;
-
-					&:hover {
-						background: #f2f0f9;
-					}
-				}
-			}
-
-			.search_container {
-				display: flex;
-				position: relative;
-
-				.search_input {
-					padding: 10px 0 10px 40px;
-					border-radius: 6px;
-					border: none;
-					background: #f4f2ff;
-					text-overflow: ellipsis;
-					transition: border 200ms;
-
-					&:hover,
-					&:focus,
-					&:focus-visible {
-						border: 1px solid #6d5bd0;
-						transition: border 200ms;
-						cursor: pointer;
-					}
-				}
-
-				.search_icon {
-					position: absolute;
-					left: 10px;
-					top: 50%;
-					left: 10px;
-					transform: translateY(-50%);
-				}
-			}
-		}
-
-		.pay_dues_wrapper {
-			border-radius: 6px;
-			background: #6d5bd0;
-
-			.pay_dues_btn {
-				padding: 10px;
-				font-family: Inter;
-				font-size: 16px;
-				font-weight: 600;
-				line-height: 19.36px;
-				text-align: left;
-				text-transform: uppercase;
-				background: transparent;
-				color: #ffffff;
-				outline: none;
-				border: none;
-			}
-		}
-	}
+	@import './index.scss';
 </style>

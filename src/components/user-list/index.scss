@@ -1,0 +1,255 @@
+.table_container {
+	font-family: Arial, sans-serif;
+	width: 100%;
+
+	.user_activity_details {
+		display: flex;
+		align-items: center;
+		gap: 5px;
+	}
+
+	.parent_table {
+		width: 100%;
+		border-collapse: collapse;
+
+		thead {
+			@include typography(12px, 600, 14.52px, left, #6e6893);
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+			background: #f4f2ff;
+		}
+	}
+
+	tr {
+		border: 1px solid #d9d5ec;
+	}
+
+	.cell:first-of-type {
+		padding-left: 20px;
+
+		div {
+			width: fit-content;
+		}
+	}
+
+	.cell:last-of-type {
+		padding-right: 20px;
+	}
+
+	.accordion_content {
+		overflow: hidden;
+		transition: height 0.5s ease-out;
+		width: 100%;
+	}
+
+	.activity_table {
+		width: 100%;
+		border-collapse: collapse;
+		border-spacing: 20px 0;
+
+		tr {
+			background: #f2f0f9;
+		}
+
+		.activity_header_row {
+			height: 46px;
+		}
+
+		.activity_cell {
+			&:first-of-type {
+				padding-left: 50px;
+				@media screen and (min-width: 744px) {
+					padding-left: 95px;
+				}
+
+				div {
+					width: fit-content;
+				}
+			}
+
+			&:nth-child(2) {
+				padding-left: 20px;
+			}
+
+			&:last-of-type {
+				padding-right: 95px;
+			}
+
+			&.date {
+				@include typography(14px, 400, 16.94px, left, #6e6893);
+				letter-spacing: 0.05em;
+				text-transform: uppercase;
+			}
+
+			&.activity,
+			&.detail {
+				@include typography(14px, 400, 16.94px);
+			}
+		}
+
+		.no_records {
+			@include typography(16px, 600, 19.36px, center, #6e6893);
+		}
+	}
+
+	.row {
+		height: 60px;
+	}
+
+	.highlight_row {
+		background: #f4f2ff;
+	}
+
+	.user_checkbox {
+		width: 20px;
+		height: 20px;
+	}
+
+	.chevron_down {
+		margin-left: 20px;
+		transition: transform 400ms;
+
+		&.open {
+			transform: rotate(180deg);
+			transition: transform 200ms;
+		}
+
+		&:hover {
+			cursor: pointer;
+		}
+
+		&:active {
+			transform: scale(0.96);
+		}
+	}
+
+	.user_name_email {
+		.user_name {
+			@include typography(14px, 500, 16.94px);
+		}
+
+		.user_email {
+			@include typography(14px, 400, 16.94px, unset, #6e6893);
+			letter-spacing: 0.05em;
+		}
+	}
+
+	.split_two_rows {
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+	}
+
+	.user_active_status {
+		.user_status_wrapper {
+			border-radius: 10px;
+			display: flex;
+			padding: 2px 6px;
+			width: fit-content;
+			background: var(--clr-bg);
+			gap: 5px;
+
+			span {
+				@include typography(12px, 500, 14.52px, left, var(--clr-font));
+			}
+		}
+
+		.user_last_login {
+			@include typography(12px, 500, 14.52px, left, #6e6893);
+
+			.last_login_date {
+				text-transform: uppercase;
+			}
+		}
+	}
+
+	.user_paid_status {
+		.user_paid_indicator {
+			background: var(--clr-bg);
+			border-radius: 10px;
+			display: flex;
+			padding: 2px 6px;
+			width: fit-content;
+			gap: 5px;
+
+			.payment_status {
+				@include typography(12px, 500, 14.52px, left, var(--clr-font));
+			}
+		}
+
+		.user_payment_dialog {
+			@include typography(12px, 500, 14.52px, left);
+		}
+
+		.payment_date {
+			text-transform: uppercase;
+		}
+	}
+
+	.align_right {
+		text-align: right;
+	}
+
+	.amount_wrapper {
+		.amount {
+			@include typography(14px, 500, 16.94px);
+		}
+
+		.currency {
+			@include typography(12px, 400, 14.52px, unset, #6e6893);
+		}
+	}
+
+	.view_more {
+		@include typography(12px, 500, 14.52px, left, #6e6893);
+		margin-left: 25px;
+	}
+}
+
+.highlight_row_border {
+	border-left: 5px solid #6d5bd0 !important;
+	transition: border-left 300ms;
+}
+
+.checkbox_wrapper {
+	display: flex;
+}
+
+.custom-checkbox {
+	display: inline-block;
+	position: relative;
+	cursor: pointer;
+	user-select: none;
+
+	input {
+		position: absolute;
+		opacity: 0;
+		cursor: pointer;
+		height: 0;
+		width: 0;
+	}
+}
+
+.checkmark {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 20px;
+	width: 20px;
+	background-color: transparent;
+	border: 2px solid #8a70ff;
+	border-radius: 4px;
+	transition: all 0.3s ease;
+	svg {
+		display: none;
+		stroke: white;
+	}
+}
+
+.custom-checkbox input:checked ~ .checkmark {
+	background-color: #8a70ff;
+}
+
+.custom-checkbox input:checked ~ .checkmark svg {
+	display: block;
+}

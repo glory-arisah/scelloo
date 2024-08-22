@@ -6,14 +6,23 @@
 			cellspacing="0"
 		>
 			<thead class="table_header">
-				<tr class="table_header_row row">
+				<tr :class="checkAllUsersClasslist">
 					<td class="cell">
 						<div class="checkbox_wrapper cell">
-							<input
-								class="user_checkbox select_users_input"
-								type="checkbox"
-								name="select-visible-users"
-							/>
+							<label class="custom-checkbox">
+								<input
+									type="checkbox"
+									name="select-visible-users"
+									:checked="allPaginatedUserChecked"
+									@change="handleSelectAllPaginatedUsers"
+								/>
+								<span class="checkmark">
+									<img
+										:src="CheckMark"
+										alt="select all users"
+									/>
+								</span>
+							</label>
 						</div>
 					</td>
 					<td class="cell">name</td>
@@ -37,19 +46,35 @@
 					</td>
 				</tr>
 			</thead>
-			<!-- eslint-disable -->
+
 			<template
 				v-for="user in paginationUsersWithIcons"
 				:key="user.id"
 			>
-				<tr :class="['row', user.id === userInView?.id ? 'highlight_row' : '']">
+				<tr
+					:class="[
+						'row',
+						user.id === userInView?.id ? 'highlight_row' : '',
+						selectedUsersIds.includes(user.id) ? 'highlight_row_border' : '',
+					]"
+				>
 					<td class="cell">
 						<div class="checkbox_wrapper cell">
-							<input
-								class="user_checkbox select_user_input"
-								type="checkbox"
-								name="select-visible-users"
-							/>
+							<label class="custom-checkbox">
+								<input
+									type="checkbox"
+									name="select-visible-user"
+									:value="user.id"
+									:checked="selectedUsersIds.includes(user.id)"
+									v-model="selectedUsersIds"
+								/>
+								<span class="checkmark">
+									<img
+										:src="CheckMark"
+										alt="select user"
+									/>
+								</span>
+							</label>
 							<img
 								:src="ChevronDown"
 								:class="[
@@ -69,13 +94,15 @@
 					</td>
 					<td class="cell">
 						<div class="split_two_rows user_active_status">
-							<div class="user_status_wrapper">
+							<div
+								class="user_status_wrapper"
+								:style="`
+									--clr-bg: var(--clr-bg-${user.userStatus});
+									--clr-font: var(--clr-font-${user.userStatus})
+								`"
+							>
 								<img
-									:src="
-										user.userStatus === 'active'
-											? ActivIndicator
-											: InactiveIndicator
-									"
+									:src="svgUrl(user.userStatus)"
 									:alt="user.userStatus"
 								/>
 								<span :class="user.userStatus">
@@ -96,11 +123,11 @@
 							<div
 								class="user_paid_indicator"
 								:style="`
-								background: var(--clr-bg-${user.paymentStatus});
-								color: var(--clr-text-${user.paymentStatus})
+									--clr-bg: var(--clr-bg-${user.paymentStatus});
+									--clr-font: var(--clr-font-${user.paymentStatus})
 							`"
 							>
-								<img :src="user.paymentIndicator" />
+								<img :src="svgUrl(user.paymentStatus)" />
 								<span class="payment_status">
 									{{ capitalize(user.paymentStatus) }}
 								</span>
@@ -139,7 +166,7 @@
 				</tr>
 
 				<tr
-					v-if="userInView && userInViewId === user.id"
+					v-if="userInView && userInView.id === user.id"
 					class="accordion_content"
 					:style="{
 						height: `${contentHeight}px`,
@@ -176,7 +203,15 @@
 										!userInView.userActivities.length
 									"
 									class="no_records row"
-								></tr>
+								>
+									<td
+										colspan="3"
+										class="no_records"
+										style="height: 100px"
+									>
+										NO RECORDS FOUND
+									</td>
+								</tr>
 
 								<template v-else>
 									<tr
@@ -198,7 +233,6 @@
 					</td>
 				</tr>
 			</template>
-			<!-- eslint-enable -->
 		</table>
 	</div>
 </template>
@@ -206,33 +240,38 @@
 <script setup>
 	import MoreIcon from '@assets/icons/more.svg'
 	import ChevronDown from '@assets/icons/chevron-down.svg'
-	import ActivIndicator from '@assets/icons/active-indicator.svg'
-	import InactiveIndicator from '@assets/icons/inactive-indicator.svg'
 	import PaidIndicator from '@assets/icons/payment-status/paid.svg'
 	import UnpaidIndicator from '@assets/icons/payment-status/unpaid.svg'
 	import OverdueIndicator from '@assets/icons/payment-status/overdue.svg'
+	import CheckMark from '@assets/icons/payment-status/checkmark.svg'
 	import DetailsIcon from '@assets/icons/details.svg'
 
 	import { useAdminStore } from '@store'
 	import { storeToRefs } from 'pinia'
-	import { ref, computed, nextTick, watch } from 'vue'
+	import { ref, computed, nextTick, watch, onUnmounted } from 'vue'
 	import { USER_PAID_CATEGORIES } from '@views/admin/constants'
 	import { capitalize } from '@utils/stringFormatter'
 
 	const adminStore = useAdminStore()
-	const { pageNumber, usersPerPage, paginatedUsers, filterParams } =
-		storeToRefs(adminStore)
+	const {
+		pageNumber,
+		usersPerPage,
+		paginatedUsers,
+		filterParams,
+		selectedUsersIds,
+	} = storeToRefs(adminStore)
 
 	const userInViewId = ref(0)
 	const contentHeight = ref(0)
 	const contentRef = ref(null)
+	const tickBoxChecked = ref([])
 
 	const userInView = computed(() => {
 		if (!userInViewId.value) return null
 		return paginatedUsers.value.find((user) => user.id === userInViewId.value)
 	})
 
-	watch(
+	const stopExpandedUserDetailsWatcher = watch(
 		() => ({
 			pageNumber: pageNumber.value,
 			usersPerPage: usersPerPage.value,
@@ -242,6 +281,21 @@
 			userInViewId.value = null
 		}
 	)
+
+	const allPaginatedUserChecked = computed(() => {
+		return (
+			paginatedUsers.value.length > 0 &&
+			paginatedUsers.value.every((user) =>
+				selectedUsersIds.value.includes(user.id)
+			)
+		)
+	})
+
+	const checkAllUsersClasslist = computed(() => [
+		'row',
+		'table_header_row',
+		allPaginatedUserChecked.value ? 'highlight_row_border' : '',
+	])
 
 	const paginationUsersWithIcons = computed(() =>
 		paginatedUsers.value.map((user, index) => ({
@@ -268,273 +322,33 @@
 			}
 		})
 	}
+
+	function handleSelectAllPaginatedUsers(event) {
+		if (event.target.checked) {
+			adminStore.updateSelectedUsersId(
+				paginatedUsers.value.map((user) => user.id)
+			)
+		} else {
+			adminStore.updateSelectedUsersId([])
+		}
+	}
+
+	// Function to get the value of a CSS variable
+	function getCssVariableValue(variable) {
+		return getComputedStyle(document.documentElement)
+			.getPropertyValue(variable)
+			.trim()
+	}
+
+	function svgUrl(paymentStatus) {
+		return getCssVariableValue(`--svg-${paymentStatus}`)
+	}
+
+	onUnmounted(() => {
+		stopExpandedUserDetailsWatcher()
+	})
 </script>
 
 <style lang="scss" scoped>
-	.table_container {
-		font-family: Arial, sans-serif;
-		width: 100%;
-
-		.user_activity_details {
-			display: flex;
-			align-items: center;
-			gap: 5px;
-		}
-
-		.parent_table {
-			width: 100%;
-			border-collapse: collapse;
-
-			thead {
-				font-family: Inter;
-				font-size: 12px;
-				font-weight: 600;
-				line-height: 14.52px;
-				letter-spacing: 0.05em;
-				text-align: left;
-				color: #6e6893;
-				text-transform: uppercase;
-				background: #f4f2ff;
-			}
-		}
-
-		tr {
-			border: 1px solid #d9d5ec;
-		}
-
-		.cell:first-of-type {
-			padding-left: 20px;
-
-			div {
-				width: fit-content;
-			}
-		}
-
-		.cell:last-of-type {
-			padding-right: 20px;
-		}
-
-		.accordion_content {
-			overflow: hidden;
-			transition: height 0.5s ease-out;
-			width: 100%;
-		}
-
-		.activity_table {
-			width: 100%;
-			border-collapse: collapse;
-			border-spacing: 20px 0;
-
-			tr {
-				background: #f2f0f9;
-			}
-
-			.activity_header_row {
-				height: 46px;
-			}
-
-			.activity_cell {
-				&:first-of-type {
-					padding-left: 50px;
-					@media screen and (min-width: 744px) {
-						padding-left: 95px;
-					}
-
-					div {
-						width: fit-content;
-					}
-				}
-
-				&:nth-child(2) {
-					padding-left: 20px;
-				}
-
-				&:last-of-type {
-					padding-right: 95px;
-				}
-
-				&.date {
-					font-family: Inter;
-					font-size: 14px;
-					font-weight: 400;
-					line-height: 16.94px;
-					letter-spacing: 0.05em;
-					text-align: left;
-					color: #6e6893;
-					text-transform: uppercase;
-				}
-
-				&.activity,
-				&.detail {
-					font-family: Inter;
-					font-size: 14px;
-					font-weight: 400;
-					line-height: 16.94px;
-					text-align: left;
-					color: #25213b;
-				}
-			}
-		}
-
-		.row {
-			height: 60px;
-		}
-
-		.highlight_row {
-			background: #f4f2ff;
-		}
-
-		.user_checkbox {
-			width: 20px;
-			height: 20px;
-		}
-
-		.chevron_down {
-			margin-left: 20px;
-			transition: transform 400ms;
-
-			&.open {
-				transform: rotate(180deg);
-				transition: transform 200ms;
-			}
-
-			&:hover {
-				cursor: pointer;
-			}
-
-			&:active {
-				transform: scale(0.96);
-			}
-		}
-
-		.user_name_email {
-			.user_name {
-				font-family: Inter;
-				font-size: 14px;
-				font-weight: 500;
-				line-height: 16.94px;
-				text-align: left;
-				color: #25213b;
-			}
-
-			.user_email {
-				font-family: Inter;
-				font-size: 14px;
-				font-weight: 400;
-				line-height: 16.94px;
-				letter-spacing: 0.05em;
-				text-align: left;
-				color: #6e6893;
-			}
-		}
-
-		.split_two_rows {
-			display: flex;
-			flex-direction: column;
-			gap: 5px;
-		}
-
-		.user_active_status {
-			.user_status_wrapper {
-				border-radius: 10px;
-				display: flex;
-				padding: 2px 6px;
-				background: #e6e6f2;
-				width: fit-content;
-				gap: 5px;
-
-				span {
-					font-family: Inter;
-					font-size: 12px;
-					font-weight: 500;
-					line-height: 14.52px;
-					text-align: left;
-				}
-
-				.active {
-					color: #4a4aff;
-				}
-
-				.inactive {
-					color: #6e6893;
-				}
-			}
-
-			.user_last_login {
-				font-family: Inter;
-				font-size: 12px;
-				font-weight: 500;
-				line-height: 14.52px;
-				text-align: left;
-				color: #6e6893;
-
-				.last_login_date {
-					text-transform: uppercase;
-				}
-			}
-		}
-
-		.user_paid_status {
-			.user_paid_indicator {
-				border-radius: 10px;
-				display: flex;
-				padding: 2px 6px;
-				width: fit-content;
-				gap: 5px;
-
-				.payment_status {
-					font-family: Inter;
-					font-size: 12px;
-					font-weight: 500;
-					line-height: 14.52px;
-					text-align: left;
-				}
-			}
-
-			.user_payment_dialog {
-				font-family: Inter;
-				font-size: 12px;
-				font-weight: 500;
-				line-height: 14.52px;
-				text-align: left;
-			}
-
-			.payment_date {
-				text-transform: uppercase;
-			}
-		}
-
-		.align_right {
-			text-align: right;
-		}
-
-		.amount_wrapper {
-			.amount {
-				font-family: Inter;
-				font-size: 14px;
-				font-weight: 500;
-				line-height: 16.94px;
-				color: #25213b;
-			}
-
-			.currency {
-				font-family: Inter;
-				font-size: 12px;
-				font-weight: 400;
-				line-height: 14.52px;
-				letter-spacing: 0.05em;
-				color: #6e6893;
-			}
-		}
-
-		.view_more {
-			font-family: Inter;
-			font-size: 12px;
-			font-weight: 500;
-			line-height: 14.52px;
-			text-align: left;
-			color: #6e6893;
-			margin-left: 25px;
-		}
-	}
+	@import './index.scss';
 </style>

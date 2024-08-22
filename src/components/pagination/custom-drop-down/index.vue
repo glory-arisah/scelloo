@@ -11,7 +11,7 @@
 			/>
 		</button>
 		<ul
-			v-show="isOpen"
+			v-show="isDropdownOpen"
 			class="dropdown-list"
 		>
 			<li
@@ -30,7 +30,7 @@
 	import ArrowDownIcon from '@assets/icons/pagination/arrow-down.svg'
 	import { ref, computed } from 'vue'
 
-	const props = defineProps({
+	const { options, modelValue, isDropdownOpen } = defineProps({
 		options: {
 			type: Array,
 			required: true,
@@ -39,67 +39,35 @@
 			type: [String, Number],
 			default: '',
 		},
+		isDropdownOpen: {
+			type: Boolean,
+			default: false,
+			required: true,
+		},
 	})
 
-	const emit = defineEmits(['update:modelValue', 'option-selected'])
+	const emit = defineEmits([
+		'update:modelValue',
+		'option-selected',
+		'toggle-dropdown-visibility',
+	])
 
-	const isOpen = ref(false)
 	const selectedOption = ref(
-		props.options.find((option) => option.value === props.value)
+		options.find((option) => option.value === modelValue)
 	)
 
 	function toggleDropdown() {
-		isOpen.value = !isOpen.value
+		emit('toggle-dropdown-visibility', !isDropdownOpen.value)
 	}
 
 	function selectOption(option) {
 		selectedOption.value = option
 		emit('update:modelValue', option)
 		emit('option-selected', option)
-		isOpen.value = false
+		emit('toggle-dropdown-visibility', false)
 	}
 </script>
 
 <style lang="scss" scoped>
-	.custom-dropdown {
-		position: relative;
-		display: inline-block;
-	}
-
-	.dropdown_header {
-		display: flex;
-		border: none;
-		outline: none;
-		align-items: center;
-		width: fit-content;
-		border-radius: 4px;
-		cursor: pointer;
-		background-color: transparent;
-	}
-
-	.dropdown-list {
-		position: absolute;
-		top: 100%;
-		left: -100%;
-		right: 0;
-		border: 1px solid #ccc;
-		border-top: none;
-		border-radius: 4px;
-		background-color: #fff;
-		box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-		max-height: 200px;
-		overflow-y: auto;
-		z-index: 1000;
-		width: 65px;
-	}
-
-	.dropdown-list li {
-		padding: 10px;
-		cursor: pointer;
-	}
-
-	.dropdown-list li:hover,
-	.current_selection {
-		background-color: #f0f0f0;
-	}
+	@import './index.scss';
 </style>

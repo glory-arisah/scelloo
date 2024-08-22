@@ -67,6 +67,11 @@
 			...adminStore.filterParams,
 			userPaymentStatus: paymentStatus,
 		})
+
+		adminStore.updatePaginationData({
+			...adminStore.pagination,
+			pageNumber: 1,
+		})
 	}
 
 	onMounted(() => {
@@ -75,95 +80,5 @@
 </script>
 
 <style lang="scss" scoped>
-	.main_container {
-		padding: 50px 2rem 0;
-		@media screen and (min-width: 744px) {
-			padding: 50px 100px 100px;
-		}
-
-		.table_heading_wrapper {
-			margin-bottom: 1rem;
-
-			.table_heading {
-				font-family: Inter;
-				font-size: 14px;
-				font-weight: 700;
-				line-height: 16.94px;
-				letter-spacing: 0.1em;
-				text-align: left;
-				color: #6e6893;
-				text-transform: uppercase;
-			}
-		}
-
-		.payment_status_wrapper {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			border-bottom: 1px solid #c6c2de;
-			margin-bottom: 20px;
-
-			.payment_statuses {
-				display: flex;
-
-				.payment_status {
-					color: #6e6893;
-					font-family: Inter;
-					font-size: 14px;
-					font-weight: 500;
-					line-height: 16.94px;
-					text-align: left;
-					cursor: pointer;
-					padding: 6px 4px;
-					margin-right: 0.2rem;
-
-					&.active {
-						color: #25213b;
-						border-bottom: 2px solid #25213b;
-					}
-
-					@media screen and (min-width: 744px) {
-						padding: 6px 10px;
-						margin-right: 30px;
-					}
-				}
-			}
-
-			.total_payable_amount_wrapper {
-				.total_payable_amount_dialog {
-					font-family: Inter;
-					font-size: 14px;
-					font-weight: 500;
-					line-height: 16.94px;
-					text-align: left;
-					color: #6e6893;
-				}
-
-				.total_payable_amount {
-					font-family: Inter;
-					font-size: 18px;
-					font-weight: 700;
-					line-height: 21.78px;
-					text-align: left;
-					color: #6d5bd0;
-				}
-
-				.total_payable_amount_currency {
-					font-family: Inter;
-					font-size: 18px;
-					font-weight: 400;
-					line-height: 21.78px;
-					text-align: left;
-					text-transform: uppercase;
-					color: #6e6893;
-				}
-			}
-		}
-
-		.user_table_container {
-			background: #fff;
-			border-radius: 12px; // look into later
-			box-shadow: 0px 0px 5px 0px #00000033;
-		}
-	}
+	@import './index.scss';
 </style>

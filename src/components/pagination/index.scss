@@ -1,0 +1,45 @@
+.pagination_wrapper {
+	display: flex;
+	justify-content: flex-end;
+	padding: 15px 28px;
+	background: #f4f2ff;
+	gap: 68px;
+	border-bottom-left-radius: 12px;
+	border-bottom-right-radius: 12px;
+
+	.nav_btns_wrapper {
+		display: flex;
+		gap: 56px;
+
+		.pagination_btn {
+			cursor: pointer;
+			outline: none;
+			border: none;
+			background: transparent;
+
+			&:disabled,
+			&[disabled] {
+				opacity: 0.4;
+				cursor: not-allowed;
+			}
+
+			.next {
+				transform: rotate(-180deg);
+			}
+		}
+	}
+
+	.users_count_wrapper,
+	.users_per_page_wrapper {
+		@include typography(12px, 600, 14.52px, left, #6e6893);
+		letter-spacing: 0.05em;
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+
+	select {
+		background-image: url(assets/icons/pagination/arrow-down.svg);
+		background-position: right 5px top 50%;
+	}
+}

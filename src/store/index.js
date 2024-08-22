@@ -1,81 +1,19 @@
 import { defineStore } from 'pinia'
 import { generateUsers } from '@utils/generateUsers'
 import {
+	filterUsersByPaymentAndActiveStatus,
+	sortUsers,
+} from '@utils/userFilter'
+import {
 	SORT_FILTERS,
 	USER_ACTIVE_CATEGORIES,
 	USER_PAID_CATEGORIES,
 } from '@views/admin/constants'
 
-function filterUsersByPaymentAndActiveStatus(
-	users,
-	activeStatus,
-	userPaymentStatus,
-	searchTerm
-) {
-	if (!users || !users.length) return []
-
-	return users.filter((user) => {
-		const doesUserMatchPaymentStatus =
-			userPaymentStatus === USER_PAID_CATEGORIES.ALL ||
-			user.paymentStatus === userPaymentStatus
-
-		const doesUserMatchActiveStatus =
-			activeStatus === USER_ACTIVE_CATEGORIES.ALL ||
-			user.userStatus === activeStatus
-
-		const searchTermNameMatch =
-			!searchTerm || user.fullName.toLowerCase().includes(searchTerm)
-		const searchTermEmailMatch =
-			!searchTerm || user.email.toLowerCase().includes(searchTerm)
-		const searchTermLoginDateMatch =
-			!searchTerm ||
-			user.lastLogin.format('DD/MMM/YYYY').toLowerCase().includes(searchTerm)
-		const searchTermDueDateMatch =
-			!searchTerm ||
-			user.dueDate.format('DD/MMM/YYYY').toLowerCase().includes(searchTerm)
-
-		return (
-			doesUserMatchActiveStatus &&
-			doesUserMatchPaymentStatus &&
-			(searchTermNameMatch ||
-				searchTermEmailMatch ||
-				searchTermLoginDateMatch ||
-				searchTermDueDateMatch)
-		)
-	})
-}
-
-function sortUsers(users, sortValue) {
-	switch (sortValue) {
-		case SORT_FILTERS.DEFAULT:
-			return users
-		case SORT_FILTERS.LAST_LOGIN:
-		case SORT_FILTERS.DUE_DATE:
-			return users.slice().sort((a, b) => {
-				if (a[sortValue].isBefore(b[sortValue], 'day')) {
-					return -1
-				} else if (a[sortValue].isAfter(b[sortValue], 'day')) {
-					return 1
-				} else {
-					return 0
-				}
-			})
-		default:
-			return users.slice().sort((a, b) => {
-				if (a[sortValue] < b[sortValue]) {
-					return -1
-				} else if (a[sortValue] > b[sortValue]) {
-					return 1
-				} else {
-					return 0
-				}
-			})
-	}
-}
-
 export const useAdminStore = defineStore('admin', {
 	state: () => ({
 		users: [],
+		selectedUsersIds: [],
 		filterParams: {
 			sortBy: SORT_FILTERS.DEFAULT,
 			activeStatus: USER_ACTIVE_CATEGORIES.ALL,
@@ -90,6 +28,21 @@ export const useAdminStore = defineStore('admin', {
 	actions: {
 		fetchUsers(numberOfUsers) {
 			this.users = generateUsers(numberOfUsers)
+		},
+		updateSelectedUsersId(payload) {
+			this.selectedUsersIds = payload
+		},
+		updateUserPaymentStatus(userIds) {
+			if (!userIds || !userIds.length) return
+
+			this.users = this.users.map((user) => ({
+				...user,
+				paymentStatus:
+					userIds.includes(user.id) &&
+					user.paymentStatus !== USER_PAID_CATEGORIES.PAID
+						? USER_PAID_CATEGORIES.PAID
+						: user.paymentStatus,
+			}))
 		},
 		updateFilterParams(payload) {
 			this.filterParams = payload

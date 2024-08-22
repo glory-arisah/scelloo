@@ -1,0 +1,14 @@
+@mixin typography(
+	$font-size,
+	$font-weight,
+	$line-height,
+	$text-align: unset,
+	$text-color: var(--clr-font-primary)
+) {
+	font-family: Inter;
+	font-size: $font-size;
+	font-weight: $font-weight;
+	line-height: $line-height;
+	text-align: $text-align;
+	color: $text-color;
+}
