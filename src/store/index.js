@@ -1,14 +1,48 @@
 import { defineStore } from 'pinia'
 import { generateUsers } from '@utils/generateUsers'
-import { SORT_FILTERS, USER_ACTIVE_CATEGORIES } from '@views/admin/constants'
+import {
+	SORT_FILTERS,
+	USER_ACTIVE_CATEGORIES,
+	USER_PAID_CATEGORIES,
+} from '@views/admin/constants'
 
-function filterByActiveUser(users, userActiveStatus) {
-	switch (userActiveStatus) {
-		case USER_ACTIVE_CATEGORIES.ALL:
-			return users
-		default:
-			return users.filter((user) => user?.userStatus === userActiveStatus)
-	}
+function filterUsersByPaymentAndActiveStatus(
+	users,
+	activeStatus,
+	userPaymentStatus,
+	searchTerm
+) {
+	if (!users || !users.length) return []
+
+	return users.filter((user) => {
+		const doesUserMatchPaymentStatus =
+			userPaymentStatus === USER_PAID_CATEGORIES.ALL ||
+			user.paymentStatus === userPaymentStatus
+
+		const doesUserMatchActiveStatus =
+			activeStatus === USER_ACTIVE_CATEGORIES.ALL ||
+			user.userStatus === activeStatus
+
+		const searchTermNameMatch =
+			!searchTerm || user.fullName.toLowerCase().includes(searchTerm)
+		const searchTermEmailMatch =
+			!searchTerm || user.email.toLowerCase().includes(searchTerm)
+		const searchTermLoginDateMatch =
+			!searchTerm ||
+			user.lastLogin.format('DD/MMM/YYYY').toLowerCase().includes(searchTerm)
+		const searchTermDueDateMatch =
+			!searchTerm ||
+			user.dueDate.format('DD/MMM/YYYY').toLowerCase().includes(searchTerm)
+
+		return (
+			doesUserMatchActiveStatus &&
+			doesUserMatchPaymentStatus &&
+			(searchTermNameMatch ||
+				searchTermEmailMatch ||
+				searchTermLoginDateMatch ||
+				searchTermDueDateMatch)
+		)
+	})
 }
 
 function sortUsers(users, sortValue) {
@@ -16,15 +50,26 @@ function sortUsers(users, sortValue) {
 		case SORT_FILTERS.DEFAULT:
 			return users
 		case SORT_FILTERS.LAST_LOGIN:
-			return users
-				.slice()
-				.sort((a, b) =>
-					dayjsWrapper(a, 'MM/DDD/YYYY').isBefore(
-						dayjsWrapper(b, 'MM/DDD/YYYY')
-					)
-				)
+		case SORT_FILTERS.DUE_DATE:
+			return users.slice().sort((a, b) => {
+				if (a[sortValue].isBefore(b[sortValue], 'day')) {
+					return -1
+				} else if (a[sortValue].isAfter(b[sortValue], 'day')) {
+					return 1
+				} else {
+					return 0
+				}
+			})
 		default:
-			return users.slice().sort((a, b) => a[sortValue] < b[sortValue])
+			return users.slice().sort((a, b) => {
+				if (a[sortValue] < b[sortValue]) {
+					return -1
+				} else if (a[sortValue] > b[sortValue]) {
+					return 1
+				} else {
+					return 0
+				}
+			})
 	}
 }
 
@@ -33,7 +78,9 @@ export const useAdminStore = defineStore('admin', {
 		users: [],
 		filterParams: {
 			sortBy: SORT_FILTERS.DEFAULT,
-			userActiveCategory: USER_ACTIVE_CATEGORIES.ALL,
+			activeStatus: USER_ACTIVE_CATEGORIES.ALL,
+			userPaymentStatus: USER_PAID_CATEGORIES.ALL,
+			searchString: '',
 		},
 		pagination: {
 			pageNumber: 1,
@@ -55,12 +102,11 @@ export const useAdminStore = defineStore('admin', {
 		pageNumber: (state) => state.pagination.pageNumber,
 		usersPerPage: (state) => state.pagination.usersPerPage,
 		filteredUsers: (state) => {
-			if (Object.values(state.filterParams).some((filter) => !filter))
-				return state.users
-
-			return filterByActiveUser(
+			return filterUsersByPaymentAndActiveStatus(
 				state.users,
-				state.filterParams.userActiveCategory
+				state.filterParams.activeStatus,
+				state.filterParams.userPaymentStatus,
+				state.filterParams.searchString
 			)
 		},
 		sortedUsers(state) {
@@ -70,6 +116,20 @@ export const useAdminStore = defineStore('admin', {
 			const startId = this.usersPerPage * (this.pageNumber - 1)
 			const endId = startId + this.usersPerPage
 			return this.sortedUsers.slice(startId, endId)
+		},
+		totalPayableAmount() {
+			if (!this.filteredUsers || !this.filteredUsers.length) return 0
+
+			return this.filteredUsers.reduce((acc, user) => {
+				if (
+					user.paymentStatus === USER_PAID_CATEGORIES.UNPAID ||
+					user.paymentStatus === USER_PAID_CATEGORIES.OVERDUE
+				) {
+					acc += user.amount
+				}
+
+				return acc
+			}, 0)
 		},
 	},
 })

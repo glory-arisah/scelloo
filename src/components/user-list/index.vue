@@ -114,7 +114,7 @@
 										: 'Dued on:'
 								}}
 								<span class="payment_date">{{
-									user.lastLogin.add(1, 'day').format('DD/MMM/YYYY')
+									user.dueDate.format('DD/MMM/YYYY')
 								}}</span>
 							</p>
 						</div>
@@ -220,7 +220,7 @@
 	import { capitalize } from '@utils/stringFormatter'
 
 	const adminStore = useAdminStore()
-	const { pageNumber, usersPerPage, sortedUsers, paginatedUsers } =
+	const { pageNumber, usersPerPage, paginatedUsers, filterParams } =
 		storeToRefs(adminStore)
 
 	const userInViewId = ref(0)
@@ -229,41 +229,30 @@
 
 	const userInView = computed(() => {
 		if (!userInViewId.value) return null
-		return paginationUsersWithIcons.value.find(
-			(user) => user.id === userInViewId.value
-		)
+		return paginatedUsers.value.find((user) => user.id === userInViewId.value)
 	})
 
 	watch(
 		() => ({
 			pageNumber: pageNumber.value,
 			usersPerPage: usersPerPage.value,
+			filterParams: filterParams.value,
 		}),
 		() => {
-			userInViewId.value = 0
+			userInViewId.value = null
 		}
 	)
 
 	const paginationUsersWithIcons = computed(() =>
-		paginatedUsers.value.map((user, index) => {
-			const hasMiddleName = !!user?.middleName
-
-			const fullName = `${user.firstName} ${
-				hasMiddleName ? user.middleName : ''
-			} ${user.lastName}`
-
-			return {
-				...user,
-				id: index + 1,
-				fullName,
-				paymentIndicator:
-					user.paymentStatus === USER_PAID_CATEGORIES.PAID
-						? PaidIndicator
-						: user.paymentStatus === USER_PAID_CATEGORIES.UNPAID
-						? UnpaidIndicator
-						: OverdueIndicator,
-			}
-		})
+		paginatedUsers.value.map((user, index) => ({
+			...user,
+			paymentIndicator:
+				user.paymentStatus === USER_PAID_CATEGORIES.PAID
+					? PaidIndicator
+					: user.paymentStatus === USER_PAID_CATEGORIES.UNPAID
+					? UnpaidIndicator
+					: OverdueIndicator,
+		}))
 	)
 
 	function toggleUserActivitiesVisibility(userId) {

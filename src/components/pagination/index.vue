@@ -64,6 +64,9 @@
 	}
 
 	const userCountDialog = computed(() => {
+		if (filteredUsers.value?.length === 0) return 0
+		if (filteredUsers.value?.length === 1) return '1 of 1'
+
 		return `${paginationOffset.value + 1}-${
 			paginationOffset.value + paginatedUsers.value.length
 		} of ${filteredUsers.value?.length}`

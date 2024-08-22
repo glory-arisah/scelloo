@@ -6,15 +6,24 @@
 
 		<section class="payment_status_wrapper">
 			<div class="payment_statuses">
-				<div>All</div>
-				<div>Paid</div>
-				<div>Unpaid</div>
-				<div>Overdue</div>
+				<div
+					v-for="paymentStatus in USER_PAID_CATEGORIES"
+					:key="paymentStatus"
+					:class="[
+						'payment_status',
+						paymentStatus === paymentStatusFilter ? 'active' : '',
+					]"
+					@click="handleUserPaymentFilter(paymentStatus)"
+				>
+					{{ capitalize(paymentStatus) }}
+				</div>
 			</div>
 			<div class="flex_space_placeholder"></div>
 			<div class="total_payable_amount_wrapper">
 				<span class="total_payable_amount_dialog">Total payable amount: </span
-				><span class="total_payable_amount">${{ totalPayableAmount }}.00 </span>
+				><span class="total_payable_amount"
+					>${{ adminStore.totalPayableAmount }}.00
+				</span>
 				<span class="total_payable_amount_currency">usd</span>
 			</div>
 		</section>
@@ -33,6 +42,8 @@
 	import FilterUsers from '@components/filter-users/index.vue'
 	import UserList from '@components/user-list/index.vue'
 	import Pagination from '@components/pagination/index.vue'
+	import { storeToRefs } from 'pinia'
+	import { capitalize } from '@utils/stringFormatter'
 	import {
 		USER_ACTIVE_CATEGORIES,
 		USER_PAID_CATEGORIES,
@@ -40,13 +51,27 @@
 	} from './constants'
 
 	const adminStore = useAdminStore()
+	const { filterParams } = storeToRefs(adminStore)
+
 	const searchString = ref('')
 	const selectedUser = ref(null)
+
+	const paymentStatusFilter = computed(
+		() => filterParams.value.userPaymentStatus
+	)
+
+	function handleUserPaymentFilter(paymentStatus) {
+		if (paymentStatus === paymentStatusFilter.value) return
+
+		adminStore.updateFilterParams({
+			...adminStore.filterParams,
+			userPaymentStatus: paymentStatus,
+		})
+	}
 
 	onMounted(() => {
 		adminStore.fetchUsers(95)
 	})
-	const totalPayableAmount = computed(() => 900)
 </script>
 
 <style lang="scss" scoped>
@@ -81,7 +106,7 @@
 			.payment_statuses {
 				display: flex;
 
-				div {
+				.payment_status {
 					color: #6e6893;
 					font-family: Inter;
 					font-size: 14px;
@@ -91,6 +116,11 @@
 					cursor: pointer;
 					padding: 6px 4px;
 					margin-right: 0.2rem;
+
+					&.active {
+						color: #25213b;
+						border-bottom: 2px solid #25213b;
+					}
 
 					@media screen and (min-width: 744px) {
 						padding: 6px 10px;
